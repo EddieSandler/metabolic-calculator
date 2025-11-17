@@ -1,40 +1,529 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Your Results</title>
+  <meta charset="UTF-8">
+  <title>Your Metabolic Plan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --bg: #020617;
+      --card-bg: #020617;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.13);
+      --accent-strong: #0ea5e9;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-subtle: #1e293b;
+      --radius-lg: 18px;
+      --shadow-card: 0 18px 42px rgba(15, 23, 42, 0.9);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 60%, #000 100%);
+      min-height: 100vh;
+      color: var(--text-main);
+      padding: 32px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 980px;
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.23);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 55%) var(--card-bg);
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    }
+
+    @media (max-width: 850px) {
+      .shell { display: block; }
+    }
+
+    .main {
+      padding: 26px 26px 22px;
+    }
+
+    .aside {
+      padding: 22px;
+      background: radial-gradient(circle at bottom right, rgba(249, 115, 22, 0.16), transparent 60%) #020617;
+      border-left: 1px solid rgba(15, 23, 42, 0.95);
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 25% 25%, #e0f2fe, #0ea5e9 40%, #0369a1 75%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0b1120;
+      font-weight: 800;
+      font-size: 17px;
+      box-shadow: 0 10px 25px rgba(8, 47, 73, 0.8);
+    }
+
+    .brand-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 1px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      max-width: 30rem;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .pill {
+      font-size: 11px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.85);
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      color: var(--text-main);
+    }
+
+    .pill span.label {
+      font-weight: 600;
+    }
+
+    .section {
+      margin-bottom: 18px;
+      padding: 14px 14px 13px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.16), rgba(15, 23, 42, 0.98));
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: rgba(148, 163, 184, 0.9);
+    }
+
+    .badge {
+      font-size: 11px;
+      border-radius: 999px;
+      padding: 3px 9px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      color: var(--text-muted);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .metrics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .metric-card {
+      padding: 10px 9px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(30, 64, 175, 0.45);
+    }
+
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .metric-value {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .metric-unit {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .macro-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .macro-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .macro-card {
+      padding: 10px 10px 9px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    .macro-name {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: rgba(209, 213, 219, 0.9);
+      margin-bottom: 4px;
+    }
+
+    .macro-main {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+
+    .macro-grams {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .macro-kcal {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .macro-note {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .note-list {
+      list-style: none;
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .note-list li {
+      margin-bottom: 3px;
+    }
+
+    .actions-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .primary-btn, .ghost-btn {
+      border-radius: 999px;
+      border: 0;
+      padding: 9px 17px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #0b1120;
+      box-shadow: 0 10px 22px rgba(8, 47, 73, 0.9);
+    }
+
+    .primary-btn:hover {
+      filter: brightness(1.05);
+      transform: translateY(-0.5px);
+    }
+
+    .ghost-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+    }
+
+    .ghost-btn:hover {
+      border-color: rgba(248, 250, 252, 0.75);
+      color: #e5e7eb;
+    }
+
+    .disclaimer {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    .aside-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: rgba(148, 163, 184, 0.9);
+      margin-bottom: 10px;
+    }
+
+    .aside-heading {
+      font-size: 18px;
+      margin-bottom: 9px;
+    }
+
+    .aside-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    .aside-box {
+      padding: 11px 11px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: rgba(15, 23, 42, 0.96);
+      margin-bottom: 12px;
+    }
+
+    .aside-box-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(148, 163, 184, 0.95);
+      margin-bottom: 6px;
+    }
+
+    .aside-list {
+      list-style: none;
+      font-size: 12px;
+      color: var(--text-main);
+    }
+
+    .aside-list li {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+      align-items: flex-start;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 5px;
+    }
+
+    .next-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 11px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .next-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+  </style>
 </head>
 <body>
 
-<h1>Your Metabolic Plan</h1>
+<div class="shell">
+  <main class="main">
+    <div class="brand-row">
+      <div class="brand-mark">M</div>
+      <div>
+        <div class="brand-label">Metabolic Plan</div>
+        <div class="brand-sub">Personalized energy & macro targets</div>
+      </div>
+    </div>
 
-<p>
-<strong>Sex:</strong> {{ client.sex }}<br>
-<strong>Age:</strong> {{ client.age }}<br>
-<strong>Weight:</strong> {{ client.weight }} {{ client.weight_unit }}<br>
-<strong>Height:</strong> {{ client.height }} {{ client.height_unit }}<br>
-<strong>Activity:</strong> {{ client.activity }}<br>
-<strong>Goal:</strong> {{ client.goal }}<br>
-<strong>Intensity:</strong> {{ client.intensity }}<br>
-<strong>Preference:</strong> {{ client.preference }}
-</p>
+    <h1>Your Daily Targets</h1>
+    <p class="subtitle">
+      Based on the details you entered, here’s a starting point for calories and macros that can be adjusted over time
+      as we see how your body responds.
+    </p>
 
-<h2>Energy</h2>
-<p>
-<strong>BMR:</strong> {{ plan.bmr }} kcal/day<br>
-<strong>TDEE:</strong> {{ plan.tdee }} kcal/day<br>
-<strong>Target Calories:</strong> {{ plan.calories }} kcal/day
-</p>
+    <div class="pill-row">
+      <div class="pill"><span class="label">Profile</span><span>{{ client.sex|capitalize }}, {{ client.age }} years</span></div>
+      <div class="pill"><span class="label">Weight</span><span>{{ client.weight }} {{ client.weight_unit }}</span></div>
+      <div class="pill"><span class="label">Goal</span><span>{{ client.goal|capitalize }} ({{ client.intensity }})</span></div>
+      <div class="pill"><span class="label">Activity</span><span>{{ client.activity.replace('_', ' ') }}</span></div>
+    </div>
 
-<h2>Daily Macros</h2>
-<ul>
-    <li>Protein: {{ plan.protein_g }} g ({{ plan.protein_kcal }} kcal)</li>
-    <li>Fat:     {{ plan.fat_g }} g ({{ plan.fat_kcal }} kcal)</li>
-    <li>Carbs:   {{ plan.carb_g }} g ({{ plan.carb_kcal }} kcal)</li>
-</ul>
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">Energy overview</div>
+        <div class="badge">Estimated daily energy use</div>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">BMR – at rest</div>
+          <div class="metric-value">{{ plan.bmr }}</div>
+          <div class="metric-unit">kcal / day</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">TDEE – maintenance</div>
+          <div class="metric-value">{{ plan.tdee }}</div>
+          <div class="metric-unit">kcal / day</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Target calories</div>
+          <div class="metric-value">{{ plan.calories }}</div>
+          <div class="metric-unit">kcal / day</div>
+        </div>
+      </div>
+      <ul class="note-list">
+        <li>• BMR is how much you’d burn lying in bed all day.</li>
+        <li>• TDEE estimates your total burn on a typical day including movement and workouts.</li>
+        <li>• Target calories reflect your goal (lose / maintain / gain) and chosen intensity.</li>
+      </ul>
+    </section>
 
-<br>
-<a href="/">Back</a>
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">Macro targets</div>
+        <div class="badge">Daily protein, carbs, and fats</div>
+      </div>
+      <div class="macro-grid">
+        <div class="macro-card">
+          <div class="macro-name">Protein</div>
+          <div class="macro-main">
+            <div class="macro-grams">{{ plan.protein_g }} g</div>
+            <div class="macro-kcal">({{ plan.protein_kcal }} kcal)</div>
+          </div>
+          <div class="macro-note">
+            Supports lean mass, hunger control, and recovery. Aim to spread across 2–4 meals.
+          </div>
+        </div>
+        <div class="macro-card">
+          <div class="macro-name">Fat</div>
+          <div class="macro-main">
+            <div class="macro-grams">{{ plan.fat_g }} g</div>
+            <div class="macro-kcal">({{ plan.fat_kcal }} kcal)</div>
+          </div>
+          <div class="macro-note">
+            Important for hormones and satiety. Focus on whole-food sources (olive oil, nuts, avocado, eggs).
+          </div>
+        </div>
+        <div class="macro-card">
+          <div class="macro-name">Carbs</div>
+          <div class="macro-main">
+            <div class="macro-grams">{{ plan.carb_g }} g</div>
+            <div class="macro-kcal">({{ plan.carb_kcal }} kcal)</div>
+          </div>
+          <div class="macro-note">
+            Fuels brain and training. Emphasize fiber-rich carbs (fruit, veg, beans, whole grains).
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="actions-row">
+      <form action="/" method="get">
+        <button type="submit" class="ghost-btn">
+          ← Run another scenario
+        </button>
+      </form>
+      <button type="button" class="primary-btn" onclick="window.print()">
+        ⬇ Save or print this page
+      </button>
+    </div>
+    <p class="disclaimer">
+      These numbers are a structured starting point, not a verdict. Real progress comes from pairing this with behavior,
+      tracking, and periodic adjustments.
+    </p>
+  </main>
+
+  <aside class="aside">
+    <div class="aside-title">How to use this</div>
+    <h2 class="aside-heading">Turn targets into simple daily actions.</h2>
+    <p class="aside-text">
+      Don’t chase perfection. Use these numbers to anchor your plan: consistent protein, roughly on-target calories, and
+      enough carbs and fats to feel human while you change.
+    </p>
+
+    <div class="aside-box">
+      <div class="aside-box-title">Quick start checklist</div>
+      <ul class="aside-list">
+        <li><div class="dot"></div><span>Hit your protein most days. That alone changes hunger and body composition.</span></li>
+        <li><div class="dot"></div><span>Stay within ±10% of your daily calories on average over the week.</span></li>
+        <li><div class="dot"></div><span>Pick 2–3 “anchor meals” you can repeat to remove decision fatigue.</span></li>
+      </ul>
+    </div>
+
+    <div class="aside-box">
+      <div class="aside-box-title">What we’ll watch over time</div>
+      <ul class="aside-list">
+        <li><div class="dot"></div><span>Scale trend, measurements, and how your clothes fit.</span></li>
+        <li><div class="dot"></div><span>Energy, sleep, and training performance — not just pounds.</span></li>
+        <li><div class="dot"></div><span>Whether we need to adjust calories or macros to keep progress moving.</span></li>
+      </ul>
+    </div>
+
+    <div class="next-tag">
+      <div class="next-dot"></div>
+      <span>Next step in a program: map these targets onto your actual meals and schedule.</span>
+    </div>
+  </aside>
+</div>
 
 </body>
 </html>

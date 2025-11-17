@@ -1,82 +1,465 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>BMR & Macro Calculator</title>
+  <meta charset="UTF-8">
+  <title>Metabolic & Macro Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #0b1120;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --accent-strong: #0ea5e9;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --danger: #f97373;
+      --border-subtle: #1f2937;
+      --input-bg: #020617;
+      --radius-lg: 16px;
+      --shadow-card: 0 18px 45px rgba(15, 23, 42, 0.9);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: radial-gradient(circle at top, #1e293b 0, #020617 55%, #000 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+
+    .app-shell {
+      max-width: 960px;
+      width: 100%;
+      background: linear-gradient(145deg, rgba(148, 163, 184, 0.05), rgba(15, 23, 42, 0.98));
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    }
+
+    @media (max-width: 850px) {
+      .app-shell {
+        display: block;
+      }
+    }
+
+    .app-main {
+      padding: 28px 28px 24px;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 60%) var(--card-bg);
+    }
+
+    .app-aside {
+      padding: 24px;
+      background: radial-gradient(circle at top right, rgba(249, 115, 22, 0.16), transparent 60%) #020617;
+      border-left: 1px solid rgba(15, 23, 42, 0.9);
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 25% 25%, #e0f2fe, #0ea5e9 40%, #0369a1 75%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0b1120;
+      font-weight: 800;
+      font-size: 18px;
+      box-shadow: 0 10px 25px rgba(8, 47, 73, 0.8);
+    }
+
+    .brand-text-main {
+      font-size: 14px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .brand-text-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    h1 {
+      font-size: 26px;
+      letter-spacing: 0.02em;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+      max-width: 32rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 18px;
+    }
+
+    @media (max-width: 850px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .app-main {
+        padding: 22px 18px 20px;
+      }
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--text-muted);
+    }
+
+    .field-label span {
+      color: var(--accent);
+      margin-left: 4px;
+    }
+
+    .field-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .field-row > * {
+      flex: 1;
+    }
+
+    .input, .select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: radial-gradient(circle at top left, rgba(248, 250, 252, 0.06), transparent 60%) var(--input-bg);
+      padding: 9px 10px;
+      font-size: 13px;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .input::placeholder {
+      color: rgba(148, 163, 184, 0.5);
+    }
+
+    .input:focus, .select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.3);
+      background: radial-gradient(circle at top left, rgba(248, 250, 252, 0.1), transparent 65%) var(--input-bg);
+    }
+
+    .helper {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .footer-row {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .primary-btn {
+      border-radius: 999px;
+      border: 0;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      color: #0b1120;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(8, 47, 73, 0.8);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 14px 30px rgba(8, 47, 73, 0.95);
+    }
+
+    .primary-btn span.icon {
+      font-size: 15px;
+    }
+
+    .disclaimer {
+      font-size: 11px;
+      color: var(--text-muted);
+      max-width: 280px;
+      line-height: 1.5;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top left, rgba(148, 163, 184, 0.26), rgba(15, 23, 42, 0.95));
+      color: #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill strong {
+      font-weight: 600;
+    }
+
+    .aside-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(148, 163, 184, 0.9);
+      margin-bottom: 10px;
+    }
+
+    .aside-heading {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .aside-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .aside-list {
+      list-style: none;
+      font-size: 12px;
+      color: var(--text-main);
+      margin-bottom: 16px;
+    }
+
+    .aside-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .aside-dot {
+      margin-top: 4px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 11px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
+
+    .tag-pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+  </style>
 </head>
 <body>
-  <h1>BMR & Macro Calculator</h1>
-  <form action="/calculate" method="post">
-    <label>Sex:
-      <select name="sex">
-        <option value="female">Female</option>
-        <option value="male">Male</option>
-      </select>
-    </label>
-    <br>
 
-    <label>Age:
-      <input type="number" name="age" min="10" max="100" required>
-    </label>
-    <br>
+<div class="app-shell">
+  <main class="app-main">
+    <div class="brand-row">
+      <div class="brand-mark">M</div>
+      <div>
+        <div class="brand-text-main">Metabolic Profile</div>
+        <div class="brand-text-sub">Basal rate & macros aligned to midlife women</div>
+      </div>
+    </div>
 
-    <label>Weight:
-      <input type="number" step="0.1" name="weight" required>
-      <select name="weight_unit">
-        <option value="lb">lb</option>
-        <option value="kg">kg</option>
-      </select>
-    </label>
-    <br>
+    <h1>Metabolic & Macro Calculator</h1>
+    <p class="subtitle">
+      Enter a few details and we’ll estimate your daily energy needs and a macro breakdown aligned with strength,
+      metabolism, and sustainable fat loss.
+    </p>
 
-    <label>Height:
-      <input type="number" step="0.1" name="height" required>
-      <select name="height_unit">
-        <option value="in">inches</option>
-        <option value="cm">cm</option>
-      </select>
-    </label>
-    <br>
+    <form action="/calculate" method="post" >
+      <div class="form-grid">
 
-    <label>Activity level:
-      <select name="activity">
-        <option value="sedentary">Sedentary (little/no exercise)</option>
-        <option value="light">Light (1–3 days/week)</option>
-        <option value="moderate">Moderate (3–5 days/week)</option>
-        <option value="very_active">Very active (6–7 days/week)</option>
-        <option value="extra_active">Extra active (physical job + training)</option>
-      </select>
-    </label>
-    <br>
+        <div class="field-group">
+          <label class="field-label">Sex<span>*</span></label>
+          <select name="sex" class="select" required>
+            <option value="female" selected>Female</option>
+            <option value="male">Male</option>
+          </select>
+        </div>
 
-    <label>Goal:
-      <select name="goal">
-        <option value="lose">Lose weight</option>
-        <option value="maintain">Maintain</option>
-        <option value="gain">Gain muscle/weight</option>
-      </select>
-    </label>
-    <br>
+        <div class="field-group">
+          <label class="field-label">Age<span>*</span></label>
+          <input type="number" name="age" min="16" max="90" class="input" required placeholder="Years">
+          <div class="helper">Age helps adjust BMR and maintenance calories.</div>
+        </div>
 
-    <label>Intensity:
-      <select name="intensity">
-        <option value="mild">Mild (~0.5 lb/week)</option>
-        <option value="moderate" selected>Moderate (~1 lb/week)</option>
-        <option value="aggressive">Aggressive (~1.5 lb/week)</option>
-      </select>
-    </label>
-    <br>
+        <div class="field-group">
+          <label class="field-label">Weight<span>*</span></label>
+          <div class="field-row">
+            <input type="number" step="0.1" name="weight" class="input" required placeholder="Current weight">
+            <select name="weight_unit" class="select">
+              <option value="lb" selected>lb</option>
+              <option value="kg">kg</option>
+            </select>
+          </div>
+          <div class="helper">Use your morning weight, if possible.</div>
+        </div>
 
-    <label>Diet preference:
-      <select name="preference">
-        <option value="balanced">Balanced</option>
-        <option value="low_carb">Lower carb</option>
-        <option value="high_carb">Higher carb</option>
-      </select>
-    </label>
-    <br><br>
+        <div class="field-group">
+          <label class="field-label">Height<span>*</span></label>
+          <div class="field-row">
+            <input type="number" step="0.1" name="height" class="input" required placeholder="Total height">
+            <select name="height_unit" class="select">
+              <option value="in" selected>inches</option>
+              <option value="cm">cm</option>
+            </select>
+          </div>
+          <div class="helper">Tip: 5'5" = 65 inches.</div>
+        </div>
 
-    <button type="submit">Calculate</button>
-  </form>
+        <div class="field-group">
+          <label class="field-label">Activity level<span>*</span></label>
+          <select name="activity" class="select" required>
+            <option value="sedentary">Sedentary – little / no exercise</option>
+            <option value="light">Light – 1–3 days/week</option>
+            <option value="moderate" selected>Moderate – 3–5 days/week</option>
+            <option value="very_active">Very active – 6–7 days/week</option>
+            <option value="extra_active">Extra active – physical job + training</option>
+          </select>
+          <div class="helper">Think about a typical week, not your “best” week.</div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Goal<span>*</span></label>
+          <select name="goal" class="select" required>
+            <option value="lose" selected>Lose body fat</option>
+            <option value="maintain">Maintain weight</option>
+            <option value="gain">Gain muscle / weight</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Intensity</label>
+          <select name="intensity" class="select">
+            <option value="mild">Mild – slower, easier change</option>
+            <option value="moderate" selected>Moderate – balanced progress</option>
+            <option value="aggressive">Aggressive – short-term, strict</option>
+          </select>
+          <div class="helper">We’ll adjust calories based on how fast you want to move.</div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Diet preference</label>
+          <select name="preference" class="select">
+            <option value="balanced" selected>Balanced – carbs & fats</option>
+            <option value="low_carb">Lower carb, higher fat</option>
+            <option value="high_carb">Higher carb, lower fat</option>
+          </select>
+          <div class="helper">We keep protein high in all approaches.</div>
+        </div>
+
+      </div>
+
+      <div class="footer-row">
+        <button type="submit" class="primary-btn">
+          <span class="icon">➜</span>
+          <span>Calculate my plan</span>
+        </button>
+        <p class="disclaimer">
+          This calculator is for educational purposes and does not replace personalized medical advice.
+        </p>
+      </div>
+    </form>
+  </main>
+
+  <aside class="app-aside">
+    <div class="aside-title">What this gives you</div>
+    <h2 class="aside-heading">Clear numbers. Less guesswork.</h2>
+    <p class="aside-text">
+      Behind the scenes we estimate your basal metabolic rate (BMR), maintenance calories (TDEE), and a macro plan
+      designed to support lean mass and energy while you lose fat.
+    </p>
+
+    <div class="pill-row">
+      <div class="pill"><strong>BMR</strong><span>Baseline energy burn at rest</span></div>
+      <div class="pill"><strong>TDEE</strong><span>Daily energy including activity</span></div>
+      <div class="pill"><strong>Macros</strong><span>Protein, carbs, and fats per day</span></div>
+    </div>
+
+    <ul class="aside-list">
+      <li>
+        <div class="aside-dot"></div>
+        <span>High-protein by default to protect muscle, especially important around peri-menopause.</span>
+      </li>
+      <li>
+        <div class="aside-dot"></div>
+        <span>Reasonable calorie targets — not starvation diets that wreck your metabolism.</span>
+      </li>
+      <li>
+        <div class="aside-dot"></div>
+        <span>Flexible carb / fat split so we can match your eating style, not fight it.</span>
+      </li>
+    </ul>
+
+    <div class="tag">
+      <span class="tag-pill-dot"></span>
+      <span>Next step: turn these numbers into simple meals you can actually live with.</span>
+    </div>
+  </aside>
+</div>
+
 </body>
 </html>
