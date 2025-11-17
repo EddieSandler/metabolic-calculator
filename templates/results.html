@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Your Results</title>
+</head>
+<body>
+
+<h1>Your Metabolic Plan</h1>
+
+<p>
+<strong>Sex:</strong> {{ client.sex }}<br>
+<strong>Age:</strong> {{ client.age }}<br>
+<strong>Weight:</strong> {{ client.weight }} {{ client.weight_unit }}<br>
+<strong>Height:</strong> {{ client.height }} {{ client.height_unit }}<br>
+<strong>Activity:</strong> {{ client.activity }}<br>
+<strong>Goal:</strong> {{ client.goal }}<br>
+<strong>Intensity:</strong> {{ client.intensity }}<br>
+<strong>Preference:</strong> {{ client.preference }}
+</p>
+
+<h2>Energy</h2>
+<p>
+<strong>BMR:</strong> {{ plan.bmr }} kcal/day<br>
+<strong>TDEE:</strong> {{ plan.tdee }} kcal/day<br>
+<strong>Target Calories:</strong> {{ plan.calories }} kcal/day
+</p>
+
+<h2>Daily Macros</h2>
+<ul>
+    <li>Protein: {{ plan.protein_g }} g ({{ plan.protein_kcal }} kcal)</li>
+    <li>Fat:     {{ plan.fat_g }} g ({{ plan.fat_kcal }} kcal)</li>
+    <li>Carbs:   {{ plan.carb_g }} g ({{ plan.carb_kcal }} kcal)</li>
+</ul>
+
+<br>
+<a href="/">Back</a>
+
+</body>
+</html>
