@@ -316,21 +316,44 @@
 <div class="app-shell">
   <main class="app-main">
     <div class="brand-row">
-      <div class="brand-mark">M</div>
+      <div class="brand-mark">D</div>
       <div>
-        <div class="brand-text-main">Metabolic Profile</div>
-        <div class="brand-text-sub">Basal rate & macros aligned to midlife women</div>
+        <div class="brand-text-main">DoctorDropit</div>
+        <div class="brand-text-sub">Metabolic Profile Tool by Barbara Anne Hessel, MD</div>
       </div>
     </div>
 
-    <h1>Metabolic & Macro Calculator</h1>
+    <h1>Metabolic &amp; Macro Calculator</h1>
     <p class="subtitle">
+      Created by Dr. Barbara Anne Hessel (DoctorDropit) to estimate your daily
+      energy needs and macro breakdown so we can align your plan with real life.
       Enter a few details and we’ll estimate your daily energy needs and a macro breakdown aligned with strength,
       metabolism, and sustainable fat loss.
     </p>
 
     <form action="/calculate" method="post" >
       <div class="form-grid">
+        <div class="field-group">
+          <label class="field-label">First name<span>*</span></label>
+          <input
+            type="text"
+            name="first_name"
+            class="input"
+            required
+            placeholder="First name"
+          >
+        </div>
+    
+        <div class="field-group">
+          <label class="field-label">Last name<span>*</span></label>
+          <input
+            type="text"
+            name="last_name"
+            class="input"
+            required
+            placeholder="Last name"
+          >
+        </div>
 
         <div class="field-group">
           <label class="field-label">Sex<span>*</span></label>

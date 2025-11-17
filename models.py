@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 @dataclass
 class ClientInput:
+    first_name: str
+    last_name: str
     sex: str
     age: int
     weight: float

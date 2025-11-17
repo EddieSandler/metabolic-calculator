@@ -390,18 +390,19 @@
     <div class="brand-row">
       <div class="brand-mark">M</div>
       <div>
-        <div class="brand-label">Metabolic Plan</div>
-        <div class="brand-sub">Personalized energy & macro targets</div>
+        <div class="brand-label">DoctorDropit</div>
+        <div class="brand-sub">Personalized Metabolic Plan by Barbara Anne Hessel, MD</div>
       </div>
     </div>
 
-    <h1>Your Daily Targets</h1>
+    <h1>Daily Targets for {{ client.first_name }}</h1>
     <p class="subtitle">
-      Based on the details you entered, here’s a starting point for calories and macros that can be adjusted over time
-      as we see how your body responds.
+      Based on the details you entered, here’s a starting point for calories and macros 
+      Dr. Hessel can refine with you inside your customized DoctorDropit hunger code program.
     </p>
 
     <div class="pill-row">
+      <div class="pill"><span class="label">Name</span><span>{{ client.first_name }} {{ client.last_name }}</span></div>
       <div class="pill"><span class="label">Profile</span><span>{{ client.sex|capitalize }}, {{ client.age }} years</span></div>
       <div class="pill"><span class="label">Weight</span><span>{{ client.weight }} {{ client.weight_unit }}</span></div>
       <div class="pill"><span class="label">Goal</span><span>{{ client.goal|capitalize }} ({{ client.intensity }})</span></div>
@@ -485,6 +486,9 @@
     
       <form action="/report" method="post">
         <!-- Hidden fields to recreate the request on the server -->
+        <input type="hidden" name="first_name" value="{{ client.first_name }}">
+        <input type="hidden" name="last_name" value="{{ client.last_name }}">
+      
         <input type="hidden" name="sex" value="{{ client.sex }}">
         <input type="hidden" name="age" value="{{ client.age }}">
         <input type="hidden" name="weight" value="{{ client.weight }}">

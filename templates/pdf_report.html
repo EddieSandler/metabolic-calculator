@@ -1,264 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Metabolic Plan Report</title>
-  <style>
-    @page {
-      size: A4;
-      margin: 20mm;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-      font-size: 11pt;
-      color: #111827;
-      margin: 0;
-      padding: 0;
-    }
-    .report-container {
-      width: 100%;
-    }
-    .header {
-      border-bottom: 2px solid #0ea5e9;
-      padding-bottom: 8px;
-      margin-bottom: 10px;
-    }
-    .brand {
-      font-size: 10pt;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: #0ea5e9;
-      margin-bottom: 2px;
-    }
-    .title {
-      font-size: 18pt;
-      font-weight: 600;
-      color: #111827;
-    }
-    .subtitle {
-      font-size: 10pt;
-      color: #6b7280;
-    }
-    .section {
-      margin-bottom: 14px;
-    }
-    .section-title {
-      font-size: 11pt;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #4b5563;
-      margin-bottom: 4px;
-    }
-    .section-line {
-      height: 1px;
-      background: #e5e7eb;
-      margin-bottom: 6px;
-    }
-    .two-col {
-      display: table;
-      width: 100%;
-    }
-    .col {
-      display: table-cell;
-      vertical-align: top;
-      width: 50%;
-      padding-right: 6px;
-    }
-    .label {
-      font-size: 9pt;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      color: #6b7280;
-    }
-    .value {
-      font-size: 11pt;
-      font-weight: 500;
-      color: #111827;
-      margin-bottom: 2px;
-    }
-    .pill-row {
-      margin-top: 4px;
-      margin-bottom: 2px;
-    }
-    .pill {
-      display: inline-block;
-      border-radius: 999px;
-      border: 1px solid #d1d5db;
-      padding: 2px 6px;
-      font-size: 8pt;
-      color: #374151;
-      margin-right: 4px;
-      margin-bottom: 4px;
-    }
-    .metrics-table, .macro-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 10pt;
-    }
-    .metrics-table th, .metrics-table td,
-    .macro-table th, .macro-table td {
-      border: 1px solid #e5e7eb;
-      padding: 4px 6px;
-      text-align: left;
-    }
-    .metrics-table th, .macro-table th {
-      background: #f3f4f6;
-      font-weight: 600;
-      font-size: 9pt;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .note {
-      font-size: 9pt;
-      color: #6b7280;
-      margin-top: 3px;
-    }
-    .meal-block {
-      margin-bottom: 6px;
-    }
-    .meal-name {
-      font-weight: 600;
-      font-size: 10pt;
-      color: #111827;
-    }
-    .meal-text {
-      font-size: 9.5pt;
-      color: #374151;
-    }
-    .footer {
-      font-size: 8pt;
-      color: #9ca3af;
-      border-top: 1px solid #e5e7eb;
-      padding-top: 4px;
-      margin-top: 8px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Metabolic Plan Report</title>
+<style>
+@page {
+    size: A4;
+    margin: 20mm;
+}
+body {
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 11pt;
+    color: #111827;
+    margin: 0;
+    padding: 0;
+}
+.report-container {
+    width: 100%;
+}
+.header {
+    border-bottom: 2px solid #0ea5e9;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+}
+.brand {
+    font-size: 10pt;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #0ea5e9;
+    margin-bottom: 2px;
+}
+.title {
+    font-size: 18pt;
+    font-weight: 600;
+    color: #111827;
+}
+.subtitle {
+    font-size: 10pt;
+    color: #6b7280;
+}
+.section {
+    margin-bottom: 14px;
+}
+.section-title {
+    font-size: 11pt;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #4b5563;
+    margin-bottom: 4px;
+}
+.section-line {
+    height: 1px;
+    background: #e5e7eb;
+    margin-bottom: 6px;
+}
+.two-col {
+    display: table;
+    width: 100%;
+}
+.col {
+    display: table-cell;
+    vertical-align: top;
+    width: 50%;
+    padding-right: 6px;
+}
+.label {
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: #6b7280;
+}
+.value {
+    font-size: 11pt;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 2px;
+}
+.pill-row {
+    margin-top: 4px;
+    margin-bottom: 2px;
+}
+.pill {
+    display: inline-block;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    padding: 2px 6px;
+    font-size: 8pt;
+    color: #374151;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+.metrics-table, .macro-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10pt;
+}
+.metrics-table th, .metrics-table td,
+.macro-table th, .macro-table td {
+    border: 1px solid #e5e7eb;
+    padding: 4px 6px;
+    text-align: left;
+}
+.metrics-table th, .macro-table th {
+    background: #f3f4f6;
+    font-weight: 600;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+.note {
+    font-size: 9pt;
+    color: #6b7280;
+    margin-top: 3px;
+}
+.meal-block {
+    margin-bottom: 6px;
+}
+.meal-name {
+    font-weight: 600;
+    font-size: 10pt;
+    color: #111827;
+}
+.meal-text {
+    font-size: 9.5pt;
+    color: #374151;
+}
+.footer {
+    font-size: 8pt;
+    color: #9ca3af;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 4px;
+    margin-top: 8px;
+}
+</style>
 </head>
 <body>
 <div class="report-container">
-  <div class="header">
-    <div class="brand">Metabolic Profile Report</div>
+<div class="header">
+    <div class="brand">DoctorDropit • Metabolic Profile Report</div>
     <div class="title">Daily Energy & Macro Targets</div>
     <div class="subtitle">
-      Generated for {{ client.sex|capitalize }}, {{ client.age }} years – goal: {{ client.goal|capitalize }} ({{ client.intensity }})
+        Generated for {{ client.first_name }} {{ client.last_name }}
+        ({{ client.sex|capitalize }}, {{ client.age }} years)
+        – tool provided by Barbara Anne Hessel, MD (DoctorDropit).
     </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Client Overview</div>
-    <div class="section-line"></div>
-    <div class="two-col">
-      <div class="col">
-        <div class="label">Profile</div>
-        <div class="value">{{ client.sex|capitalize }}, {{ client.age }} years</div>
-        <div class="label">Anthropometrics</div>
-        <div class="value">
-          {{ client.weight }} {{ client.weight_unit }},
-          {{ client.height }} {{ client.height_unit }}
-        </div>
-      </div>
-      <div class="col">
-        <div class="label">Activity</div>
-        <div class="value">{{ client.activity.replace('_', ' ') }}</div>
-        <div class="label">Goal & Preference</div>
-        <div class="value">
-          {{ meal_plan.label }} – {{ meal_plan.style }}
-        </div>
-      </div>
     </div>
-  </div>
 
-  <div class="section">
-    <div class="section-title">Energy Summary</div>
-    <div class="section-line"></div>
-    <table class="metrics-table">
-      <thead>
-      <tr>
-        <th>Metric</th>
-        <th>Value</th>
-        <th>Description</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td>BMR (Basal Metabolic Rate)</td>
-        <td>{{ plan.bmr }} kcal / day</td>
-        <td>Estimated energy burn at complete rest.</td>
-      </tr>
-      <tr>
-        <td>TDEE (Maintenance)</td>
-        <td>{{ plan.tdee }} kcal / day</td>
-        <td>Estimated daily burn including typical movement and training.</td>
-      </tr>
-      <tr>
-        <td>Target Calories</td>
-        <td>{{ plan.calories }} kcal / day</td>
-        <td>Adjusted for goal (lose/maintain/gain) and chosen intensity.</td>
-      </tr>
-      </tbody>
-    </table>
-    <div class="note">
-      These values are estimates. Monitoring trends in weight, measurements, and how clothing fits is essential for fine-tuning.
+<div class="section">
+<div class="section-title">Client Overview</div>
+<div class="section-line"></div>
+<div class="two-col">
+    <div class="col">
+    <div class="label">Profile</div>
+    <div class="value">{{ client.sex|capitalize }}, {{ client.age }} years</div>
+    <div class="label">Anthropometrics</div>
+    <div class="value">
+        {{ client.weight }} {{ client.weight_unit }},
+        {{ client.height }} {{ client.height_unit }}
     </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Daily Macro Targets</div>
-    <div class="section-line"></div>
-    <table class="macro-table">
-      <thead>
-      <tr>
-        <th>Macro</th>
-        <th>Grams / day</th>
-        <th>Approx. kcal</th>
-        <th>Role</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td>Protein</td>
-        <td>{{ plan.protein_g }} g</td>
-        <td>{{ plan.protein_kcal }} kcal</td>
-        <td>Protects lean mass, supports satiety and recovery.</td>
-      </tr>
-      <tr>
-        <td>Fat</td>
-        <td>{{ plan.fat_g }} g</td>
-        <td>{{ plan.fat_kcal }} kcal</td>
-        <td>Supports hormones, brain health, and fullness.</td>
-      </tr>
-      <tr>
-        <td>Carbohydrates</td>
-        <td>{{ plan.carb_g }} g</td>
-        <td>{{ plan.carb_kcal }} kcal</td>
-        <td>Primary fuel for brain and training performance.</td>
-      </tr>
-      </tbody>
-    </table>
-    <div class="note">
-      Macros can shift slightly day-to-day. What matters most is consistent protein and an average calorie intake close to the target over the week.
     </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Example Meal Structure</div>
-    <div class="section-line"></div>
-    {% for meal in meal_plan.meals %}
-      <div class="meal-block">
-        <div class="meal-name">{{ meal.name }}</div>
-        <div class="meal-text">{{ meal.description }}</div>
-      </div>
-    {% endfor %}
-    <div class="note">
-      These are starting points, not rigid prescriptions. Foods can be swapped for culturally relevant or preferred options while keeping portions aligned with your targets.
+    <div class="col">
+    <div class="label">Activity</div>
+    <div class="value">{{ client.activity.replace('_', ' ') }}</div>
+    <div class="label">Goal & Preference</div>
+    <div class="value">
+        {{ meal_plan.label }} – {{ meal_plan.style }}
     </div>
-  </div>
+    </div>
+</div>
+</div>
 
-  <div class="footer">
-    This report is for educational purposes only and does not replace personalized medical or nutrition advice.
+<div class="section">
+<div class="section-title">Energy Summary</div>
+<div class="section-line"></div>
+<table class="metrics-table">
+    <thead>
+    <tr>
+    <th>Metric</th>
+    <th>Value</th>
+    <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td>BMR (Basal Metabolic Rate)</td>
+    <td>{{ plan.bmr }} kcal / day</td>
+    <td>Estimated energy burn at complete rest.</td>
+    </tr>
+    <tr>
+    <td>TDEE (Maintenance)</td>
+    <td>{{ plan.tdee }} kcal / day</td>
+    <td>Estimated daily burn including typical movement and training.</td>
+    </tr>
+    <tr>
+    <td>Target Calories</td>
+    <td>{{ plan.calories }} kcal / day</td>
+    <td>Adjusted for goal (lose/maintain/gain) and chosen intensity.</td>
+    </tr>
+    </tbody>
+</table>
+<div class="note">
+    These values are estimates. Monitoring trends in weight, measurements, and how clothing fits is essential for fine-tuning.
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">Daily Macro Targets</div>
+<div class="section-line"></div>
+<table class="macro-table">
+    <thead>
+    <tr>
+    <th>Macro</th>
+    <th>Grams / day</th>
+    <th>Approx. kcal</th>
+    <th>Role</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td>Protein</td>
+    <td>{{ plan.protein_g }} g</td>
+    <td>{{ plan.protein_kcal }} kcal</td>
+    <td>Protects lean mass, supports satiety and recovery.</td>
+    </tr>
+    <tr>
+    <td>Fat</td>
+    <td>{{ plan.fat_g }} g</td>
+    <td>{{ plan.fat_kcal }} kcal</td>
+    <td>Supports hormones, brain health, and fullness.</td>
+    </tr>
+    <tr>
+    <td>Carbohydrates</td>
+    <td>{{ plan.carb_g }} g</td>
+    <td>{{ plan.carb_kcal }} kcal</td>
+    <td>Primary fuel for brain and training performance.</td>
+    </tr>
+    </tbody>
+</table>
+<div class="note">
+    Macros can shift slightly day-to-day. What matters most is consistent protein and an average calorie intake close to the target over the week.
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">Example Meal Structure</div>
+<div class="section-line"></div>
+{% for meal in meal_plan.meals %}
+    <div class="meal-block">
+    <div class="meal-name">{{ meal.name }}</div>
+    <div class="meal-text">{{ meal.description }}</div>
+    </div>
+{% endfor %}
+<div class="note">
+    These are starting points, not rigid prescriptions. Foods can be swapped for culturally relevant or preferred options while keeping portions aligned with your targets.
+</div>
+</div>
+
+<div class="footer">
+    Prepared by DoctorDropit • Barbara Anne Hessel, MD.This report is for educational purposes only and does not replace personalized medical or nutrition advice.
     Any plan should be adjusted based on progress, symptoms, and physician guidance.
-  </div>
+</div>
 </div>
 </body>
 </html>

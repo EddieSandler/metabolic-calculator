@@ -69,6 +69,8 @@ async def show_form(request: Request):
 @app.post("/calculate", response_class=HTMLResponse)
 async def calculate_view(
     request: Request,
+    first_name: str = Form(...),
+    last_name: str = Form(...),
     sex: str = Form(...),
     age: int = Form(...),
     weight: float = Form(...),
@@ -81,6 +83,8 @@ async def calculate_view(
     preference: str = Form("balanced"),
 ):
     client = ClientInput(
+        first_name=first_name,
+        last_name=last_name,
         sex=sex,
         age=age,
         weight=weight,
@@ -106,6 +110,8 @@ async def calculate_view(
 @app.post("/report", response_class=HTMLResponse)
 async def report_pdf(
     request: Request,
+    first_name: str = Form(...),
+    last_name: str = Form(...),
     sex: str = Form(...),
     age: int = Form(...),
     weight: float = Form(...),
@@ -119,6 +125,8 @@ async def report_pdf(
 ):
     # Rebuild client + plan from form data (stateless, no sessions needed)
     client = ClientInput(
+        first_name=first_name,
+        last_name=last_name,
         sex=sex,
         age=age,
         weight=weight,
