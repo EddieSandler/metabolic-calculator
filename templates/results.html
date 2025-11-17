@@ -482,9 +482,25 @@
           ← Run another scenario
         </button>
       </form>
-      <button type="button" class="primary-btn" onclick="window.print()">
-        ⬇ Save or print this page
-      </button>
+    
+      <form action="/report" method="post">
+        <!-- Hidden fields to recreate the request on the server -->
+        <input type="hidden" name="sex" value="{{ client.sex }}">
+        <input type="hidden" name="age" value="{{ client.age }}">
+        <input type="hidden" name="weight" value="{{ client.weight }}">
+        <input type="hidden" name="weight_unit" value="{{ client.weight_unit }}">
+        <input type="hidden" name="height" value="{{ client.height }}">
+        <input type="hidden" name="height_unit" value="{{ client.height_unit }}">
+        <input type="hidden" name="activity" value="{{ client.activity }}">
+        <input type="hidden" name="goal" value="{{ client.goal }}">
+        <input type="hidden" name="intensity" value="{{ client.intensity }}">
+        <input type="hidden" name="preference" value="{{ client.preference }}">
+    
+        <button type="submit" class="primary-btn">
+          ⬇ Download PDF report
+        </button>
+      </form>
+    </div>
     </div>
     <p class="disclaimer">
       These numbers are a structured starting point, not a verdict. Real progress comes from pairing this with behavior,
