@@ -166,4 +166,10 @@ async def report_pdf(
     )  
 
 
-    #execute the app: uvicorn main:app --reload --port $PORT
+    #execute the app: uvicorn main:app --reload
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+        
