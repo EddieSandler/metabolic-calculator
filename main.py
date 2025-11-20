@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-
+from datetime import date
 from models import ClientInput
 from calculator import MetabolicCalculator
 
@@ -81,7 +81,35 @@ async def calculate_view(
     goal: str = Form(...),
     intensity: str = Form("moderate"),
     preference: str = Form("balanced"),
-):
+    goal_date: str = Form(...),
+    goal_weight: float = Form(...),
+    goal_weight_unit: str = Form(...),
+): 
+    try:
+            goal_dt = date.fromisoformat(goal_date)
+    except ValueError:
+        return templates.TemplateResponse(
+            "form.html",
+            {
+                "request": request,
+                "error": "Please enter a valid goal date.",
+            },
+            status_code=400
+        )
+
+    if goal_dt <= date.today():
+        return templates.TemplateResponse(
+            "form.html",
+            {
+                "request": request,
+                "error": "Goal date must be in the future.",
+            },
+            status_code=400
+        )
+
+
+
+
     client = ClientInput(
         first_name=first_name,
         last_name=last_name,
@@ -95,6 +123,9 @@ async def calculate_view(
         goal=goal,
         intensity=intensity,
         preference=preference,
+        goal_date=goal_date,
+        goal_weight=goal_weight,
+        goal_weight_unit=goal_weight_unit,
     )
 
     plan = calculator.calculate(client)

@@ -309,7 +309,18 @@
       border-radius: 50%;
       background: var(--accent);
     }
-  </style>
+    
+.error-box {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+</style>
+  
 </head>
 <body>
 
@@ -324,6 +335,11 @@
     </div>
 
     <h1>Metabolic &amp; Macro Calculator</h1>
+    {% if error %}
+    <div class="error-box">
+      {{ error }}
+    </div>
+    {% endif %}
     <p class="subtitle">
       Created by Dr. Barbara Anne Hessel (DoctorDropit) to estimate your daily
       energy needs and macro breakdown so we can align your plan with real life.
@@ -352,6 +368,16 @@
             class="input"
             required
             placeholder="Last name"
+          >
+        </div>
+        <div class="field-group">
+          <label class="field-label">Email Address<span>*</span></label>
+          <input
+            type="email"
+            name="email"
+            class="input"
+            required
+            placeholder="client@example.com"
           >
         </div>
 
