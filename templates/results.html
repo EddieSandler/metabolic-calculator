@@ -488,17 +488,22 @@
         <!-- Hidden fields to recreate the request on the server -->
         <input type="hidden" name="first_name" value="{{ client.first_name }}">
         <input type="hidden" name="last_name" value="{{ client.last_name }}">
-      
+        <input type="hidden" name="email" value="{{ client.email }}">
         <input type="hidden" name="sex" value="{{ client.sex }}">
         <input type="hidden" name="age" value="{{ client.age }}">
         <input type="hidden" name="weight" value="{{ client.weight }}">
         <input type="hidden" name="weight_unit" value="{{ client.weight_unit }}">
         <input type="hidden" name="height" value="{{ client.height }}">
         <input type="hidden" name="height_unit" value="{{ client.height_unit }}">
+
         <input type="hidden" name="activity" value="{{ client.activity }}">
         <input type="hidden" name="goal" value="{{ client.goal }}">
         <input type="hidden" name="intensity" value="{{ client.intensity }}">
         <input type="hidden" name="preference" value="{{ client.preference }}">
+
+        <input type="hidden" name="goal_weight" value="{{ client.goal_weight }}">
+        <input type="hidden" name="goal_weight_unit" value="{{ client.goal_weight_unit }}">
+        <input type="hidden" name="goal_date" value="{{ client.goal_date }}">
     
         <button type="submit" class="primary-btn">
           ⬇ Download PDF report

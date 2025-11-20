@@ -133,134 +133,205 @@ body {
     padding-top: 4px;
     margin-top: 8px;
 }
+.portion-row {
+    margin-top: 4px;
+    margin-bottom: 2px;
+    font-size: 9.5pt;
+}
 </style>
 </head>
 <body>
 <div class="report-container">
-<div class="header">
-    <div class="brand">DoctorDropit • Metabolic Profile Report</div>
-    <div class="title">Daily Energy & Macro Targets</div>
-    <div class="subtitle">
-        Generated for {{ client.first_name }} {{ client.last_name }}
-        ({{ client.sex|capitalize }}, {{ client.age }} years)
-        – tool provided by Barbara Anne Hessel, MD (DoctorDropit).
-    </div>
+    <div class="header">
+        <div class="brand">DoctorDropit • Metabolic Profile Report</div>
+        <div class="title">Daily Energy &amp; Macro Targets</div>
+        <div class="subtitle">
+            Generated for {{ client.first_name }} {{ client.last_name }}
+            ({{ client.sex|capitalize }}, {{ client.age }} years)
+            – tool provided by Barbara Anne Hessel, MD (DoctorDropit).
+        </div>
     </div>
 
-<div class="section">
-<div class="section-title">Client Overview</div>
-<div class="section-line"></div>
-<div class="two-col">
-    <div class="col">
-    <div class="label">Profile</div>
-    <div class="value">{{ client.sex|capitalize }}, {{ client.age }} years</div>
-    <div class="label">Anthropometrics</div>
-    <div class="value">
-        {{ client.weight }} {{ client.weight_unit }},
-        {{ client.height }} {{ client.height_unit }}
-    </div>
-    </div>
-    <div class="col">
-    <div class="label">Activity</div>
-    <div class="value">{{ client.activity.replace('_', ' ') }}</div>
-    <div class="label">Goal & Preference</div>
-    <div class="value">
-        {{ meal_plan.label }} – {{ meal_plan.style }}
-    </div>
-    </div>
-</div>
-</div>
+    <div class="section">
+        <div class="section-title">Client Overview</div>
+        <div class="section-line"></div>
+        <div class="two-col">
+            <div class="col">
+                <div class="label">Client</div>
+                <div class="value">{{ client.first_name }} {{ client.last_name }}</div>
 
-<div class="section">
-<div class="section-title">Energy Summary</div>
-<div class="section-line"></div>
-<table class="metrics-table">
-    <thead>
-    <tr>
-    <th>Metric</th>
-    <th>Value</th>
-    <th>Description</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-    <td>BMR (Basal Metabolic Rate)</td>
-    <td>{{ plan.bmr }} kcal / day</td>
-    <td>Estimated energy burn at complete rest.</td>
-    </tr>
-    <tr>
-    <td>TDEE (Maintenance)</td>
-    <td>{{ plan.tdee }} kcal / day</td>
-    <td>Estimated daily burn including typical movement and training.</td>
-    </tr>
-    <tr>
-    <td>Target Calories</td>
-    <td>{{ plan.calories }} kcal / day</td>
-    <td>Adjusted for goal (lose/maintain/gain) and chosen intensity.</td>
-    </tr>
-    </tbody>
-</table>
-<div class="note">
-    These values are estimates. Monitoring trends in weight, measurements, and how clothing fits is essential for fine-tuning.
-</div>
-</div>
+                <div class="label">Email</div>
+                <div class="value">{{ client.email }}</div>
 
-<div class="section">
-<div class="section-title">Daily Macro Targets</div>
-<div class="section-line"></div>
-<table class="macro-table">
-    <thead>
-    <tr>
-    <th>Macro</th>
-    <th>Grams / day</th>
-    <th>Approx. kcal</th>
-    <th>Role</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-    <td>Protein</td>
-    <td>{{ plan.protein_g }} g</td>
-    <td>{{ plan.protein_kcal }} kcal</td>
-    <td>Protects lean mass, supports satiety and recovery.</td>
-    </tr>
-    <tr>
-    <td>Fat</td>
-    <td>{{ plan.fat_g }} g</td>
-    <td>{{ plan.fat_kcal }} kcal</td>
-    <td>Supports hormones, brain health, and fullness.</td>
-    </tr>
-    <tr>
-    <td>Carbohydrates</td>
-    <td>{{ plan.carb_g }} g</td>
-    <td>{{ plan.carb_kcal }} kcal</td>
-    <td>Primary fuel for brain and training performance.</td>
-    </tr>
-    </tbody>
-</table>
-<div class="note">
-    Macros can shift slightly day-to-day. What matters most is consistent protein and an average calorie intake close to the target over the week.
-</div>
-</div>
+                <div class="label">Profile</div>
+                <div class="value">
+                    {{ client.sex|capitalize }}, {{ client.age }} years
+                </div>
+            </div>
+            <div class="col">
+                <div class="label">Anthropometrics</div>
+                <div class="value">
+                    Current: {{ client.weight }} {{ client.weight_unit }},
+                    Height: {{ client.height }} {{ client.height_unit }}
+                </div>
 
-<div class="section">
-<div class="section-title">Example Meal Structure</div>
-<div class="section-line"></div>
-{% for meal in meal_plan.meals %}
-    <div class="meal-block">
-    <div class="meal-name">{{ meal.name }}</div>
-    <div class="meal-text">{{ meal.description }}</div>
+                <div class="label">Goal Weight &amp; Date</div>
+                <div class="value">
+                    {{ client.goal_weight }} {{ client.goal_weight_unit }},
+                    target by {{ client.goal_date }}
+                </div>
+
+                <div class="label">Activity</div>
+                <div class="value">{{ client.activity.replace('_', ' ') }}</div>
+
+                <div class="label">Goal &amp; Preference</div>
+                <div class="value">
+                    {{ meal_plan.label }} – {{ meal_plan.style }}
+                </div>
+            </div>
+        </div>
     </div>
-{% endfor %}
-<div class="note">
-    These are starting points, not rigid prescriptions. Foods can be swapped for culturally relevant or preferred options while keeping portions aligned with your targets.
-</div>
-</div>
 
-<div class="footer">
-    Prepared by DoctorDropit • Barbara Anne Hessel, MD.This report is for educational purposes only and does not replace personalized medical or nutrition advice.
-    Any plan should be adjusted based on progress, symptoms, and physician guidance.
-</div>
+    <div class="section">
+        <div class="section-title">Energy Summary &amp; Timeline</div>
+        <div class="section-line"></div>
+        <table class="metrics-table">
+            <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Value</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>BMR (Basal Metabolic Rate)</td>
+                <td>{{ plan.bmr }} kcal / day</td>
+                <td>Estimated energy burn at complete rest (resting energy expenditure).</td>
+            </tr>
+            <tr>
+                <td>TDEE (Maintenance)</td>
+                <td>{{ plan.tdee }} kcal / day</td>
+                <td>Estimated daily burn including typical movement and training.</td>
+            </tr>
+            <tr>
+                <td>Activity Factor</td>
+                <td>{{ plan.activity_factor }}</td>
+                <td>Multiplier applied to BMR based on reported activity level.</td>
+            </tr>
+            <tr>
+                <td>Target Calories</td>
+                <td>{{ plan.calories }} kcal / day</td>
+                <td>Adjusted for goal, activity, and a safe weekly rate of change.</td>
+            </tr>
+            <tr>
+                <td>Weight to Lose</td>
+                <td>{{ plan.lbs_to_lose }} lb</td>
+                <td>Difference between current and goal weight.</td>
+            </tr>
+            <tr>
+                <td>Weeks to Goal (approx.)</td>
+                <td>{{ plan.weeks_to_goal }}</td>
+                <td>Based on the goal date provided.</td>
+            </tr>
+            <tr>
+                <td>Weekly Change Target</td>
+                <td>{{ plan.weekly_loss }} lb / week</td>
+                <td>Clamped to a clinically reasonable range (~0.5–2.0 lb/week).</td>
+            </tr>
+            <tr>
+                <td>Daily Calorie Deficit</td>
+                <td>{{ plan.daily_deficit }} kcal / day</td>
+                <td>Estimated deficit when fat loss is the goal.</td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="note">
+            These values are estimates. Monitoring trends in weight, measurements, energy, and how clothing fits is
+            essential for fine-tuning. Very low intakes can increase the risk of muscle loss and rebound weight gain.
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Daily Macro Targets</div>
+        <div class="section-line"></div>
+        <table class="macro-table">
+            <thead>
+            <tr>
+                <th>Macro</th>
+                <th>Grams / day</th>
+                <th>Approx. kcal</th>
+                <th>Role</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Protein</td>
+                <td>{{ plan.protein_g }} g</td>
+                <td>{{ plan.protein_kcal }} kcal</td>
+                <td>Protects lean mass, supports satiety and recovery.</td>
+            </tr>
+            <tr>
+                <td>Fat</td>
+                <td>{{ plan.fat_g }} g</td>
+                <td>{{ plan.fat_kcal }} kcal</td>
+                <td>Supports hormones, brain health, and fullness.</td>
+            </tr>
+            <tr>
+                <td>Carbohydrates</td>
+                <td>{{ plan.carb_g }} g</td>
+                <td>{{ plan.carb_kcal }} kcal</td>
+                <td>Primary fuel for brain function and training performance.</td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="note">
+            Macros can shift slightly day-to-day. What matters most is consistently hitting protein and keeping the
+            average weekly calorie intake close to the target.
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Daily Portion Guide (Hand Method)</div>
+        <div class="section-line"></div>
+        <div class="portion-row">
+            <strong>Protein:</strong> ~{{ plan.portion_protein }} palms of protein per day
+            (meat, fish, tofu, eggs, Greek yogurt).
+        </div>
+        <div class="portion-row">
+            <strong>Carbohydrates:</strong> ~{{ plan.portion_carbs }} cupped handfuls of carbs per day
+            (fruit, beans, grains, starchy vegetables).
+        </div>
+        <div class="portion-row">
+            <strong>Fats:</strong> ~{{ plan.portion_fats }} thumbs of fats per day
+            (oils, nuts, seeds, avocado, cheese).
+        </div>
+        <div class="note">
+            Portions are approximations based on average hand size. They can be adjusted for individual appetite,
+            food preferences, and response to the plan.
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Example Meal Structure</div>
+        <div class="section-line"></div>
+        {% for meal in meal_plan.meals %}
+            <div class="meal-block">
+                <div class="meal-name">{{ meal.name }}</div>
+                <div class="meal-text">{{ meal.description }}</div>
+            </div>
+        {% endfor %}
+        <div class="note">
+            These are starting points, not rigid prescriptions. Foods can be swapped for culturally relevant or preferred
+            options while keeping overall portions aligned with your targets.
+        </div>
+    </div>
+
+    <div class="footer">
+        Prepared by DoctorDropit • Barbara Anne Hessel, MD.
+        This report is for educational purposes only and does not replace personalized medical or nutrition advice.
+        Any plan should be adjusted based on progress, symptoms, and physician guidance.
+    </div>
 </div>
 </body>
 </html>

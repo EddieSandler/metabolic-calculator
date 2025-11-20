@@ -1,34 +1,31 @@
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 from datetime import date
-from models import ClientInput
+from io import BytesIO
+
+from fastapi import FastAPI, Form, Request
+from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.templating import Jinja2Templates
+from weasyprint import HTML
+
 from calculator import MetabolicCalculator
+from models import ClientInput
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-from io import BytesIO
-from fastapi.responses import StreamingResponse
-from weasyprint import HTML
-
 calculator = MetabolicCalculator()
 
-from models import ClientInput, MacroPlan  # ensure MacroPlan is imported
 
-def build_meal_plan(client: ClientInput, plan: MacroPlan):
+def build_meal_plan(client: ClientInput, plan) -> dict:
     """
-    Very simple, rule-based meal suggestions using goal + preference.
-    Not 'perfect nutrition', but good enough for a professional-looking demo.
+    Rule-based meal suggestions using goal + preference.
     """
     daily_cal = plan.calories
-    # Rough split: 4 'eating events'
     per_meal = int(daily_cal * 0.25)
 
     goal_label = {
         "lose": "Fat loss–focused",
         "maintain": "Maintenance",
-        "gain": "Muscle gain–focused"
+        "gain": "Muscle gain–focused",
     }.get(client.goal, "General")
 
     if client.preference == "low_carb":
@@ -42,7 +39,7 @@ def build_meal_plan(client: ClientInput, plan: MacroPlan):
         breakfast = f"Overnight oats with Greek yogurt, fruit, and a scoop of protein (~{per_meal} kcal)."
         lunch = f"Turkey or tofu grain bowl with rice, beans, veggies, and salsa (~{per_meal} kcal)."
         dinner = f"Stir-fry with lean protein, lots of vegetables, and rice or noodles (~{per_meal} kcal)."
-        snack = "Fruit + protein (e.g., apple with string cheese, or banana + protein shake)."
+        snack = "Fruit + protein (e.g., apple with cheese, or banana + protein shake)."
     else:
         style = "Balanced carbs and fats"
         breakfast = f"Greek yogurt parfait with fruit, nuts, and a bit of granola (~{per_meal} kcal)."
@@ -61,9 +58,13 @@ def build_meal_plan(client: ClientInput, plan: MacroPlan):
         ],
     }
 
+
 @app.get("/", response_class=HTMLResponse)
-async def show_form(request: Request):
-    return templates.TemplateResponse("form.html", {"request": request})
+async def form_view(request: Request):
+    return templates.TemplateResponse(
+        "form.html",
+        {"request": request, "error": None},
+    )
 
 
 @app.post("/calculate", response_class=HTMLResponse)
@@ -71,6 +72,7 @@ async def calculate_view(
     request: Request,
     first_name: str = Form(...),
     last_name: str = Form(...),
+    email: str = Form(...),
     sex: str = Form(...),
     age: int = Form(...),
     weight: float = Form(...),
@@ -81,38 +83,31 @@ async def calculate_view(
     goal: str = Form(...),
     intensity: str = Form("moderate"),
     preference: str = Form("balanced"),
-    goal_date: str = Form(...),
     goal_weight: float = Form(...),
     goal_weight_unit: str = Form(...),
-): 
+    goal_date: str = Form(...),
+):
+    # Validate goal date server-side
     try:
-            goal_dt = date.fromisoformat(goal_date)
+        goal_dt = date.fromisoformat(goal_date)
     except ValueError:
         return templates.TemplateResponse(
             "form.html",
-            {
-                "request": request,
-                "error": "Please enter a valid goal date.",
-            },
-            status_code=400
+            {"request": request, "error": "Please enter a valid goal date."},
+            status_code=400,
         )
 
     if goal_dt <= date.today():
         return templates.TemplateResponse(
             "form.html",
-            {
-                "request": request,
-                "error": "Goal date must be in the future.",
-            },
-            status_code=400
+            {"request": request, "error": "Goal date must be in the future."},
+            status_code=400,
         )
-
-
-
 
     client = ClientInput(
         first_name=first_name,
         last_name=last_name,
+        email=email,
         sex=sex,
         age=age,
         weight=weight,
@@ -123,26 +118,31 @@ async def calculate_view(
         goal=goal,
         intensity=intensity,
         preference=preference,
-        goal_date=goal_date,
         goal_weight=goal_weight,
         goal_weight_unit=goal_weight_unit,
+        goal_date=goal_dt,
     )
 
-    plan = calculator.calculate(client)
+    plan = calculator.calculate_plan(client)
+    meal_plan = build_meal_plan(client, plan)
 
     return templates.TemplateResponse(
         "results.html",
         {
             "request": request,
             "client": client,
-            "plan": plan
-        }
+            "plan": plan,
+            "meal_plan": meal_plan,
+        },
     )
+
+
 @app.post("/report", response_class=HTMLResponse)
 async def report_pdf(
     request: Request,
     first_name: str = Form(...),
     last_name: str = Form(...),
+    email: str = Form(...),
     sex: str = Form(...),
     age: int = Form(...),
     weight: float = Form(...),
@@ -153,11 +153,19 @@ async def report_pdf(
     goal: str = Form(...),
     intensity: str = Form("moderate"),
     preference: str = Form("balanced"),
+    goal_weight: float = Form(...),
+    goal_weight_unit: str = Form(...),
+    goal_date: str = Form(...),
 ):
-    # Rebuild client + plan from form data (stateless, no sessions needed)
+    try:
+        goal_dt = date.fromisoformat(goal_date)
+    except ValueError:
+        goal_dt = date.today()
+
     client = ClientInput(
         first_name=first_name,
         last_name=last_name,
+        email=email,
         sex=sex,
         age=age,
         weight=weight,
@@ -168,39 +176,29 @@ async def report_pdf(
         goal=goal,
         intensity=intensity,
         preference=preference,
+        goal_weight=goal_weight,
+        goal_weight_unit=goal_weight_unit,
+        goal_date=goal_dt,
     )
 
-    plan = calculator.calculate(client)
+    plan = calculator.calculate_plan(client)
     meal_plan = build_meal_plan(client, plan)
 
-    # Render HTML for PDF
-    html_template = templates.get_template("pdf_report.html")
-    html_content = html_template.render(
+    template = templates.get_template("pdf_report.html")
+    html_content = template.render(
         client=client,
         plan=plan,
-        meal_plan=meal_plan
+        meal_plan=meal_plan,
     )
 
-    # Convert HTML to PDF
     pdf_io = BytesIO()
     HTML(string=html_content).write_pdf(pdf_io)
     pdf_io.seek(0)
 
-    filename = "metabolic_plan.pdf"
+    filename = f"metabolic_plan_{client.last_name or 'report'}.pdf"
 
     return StreamingResponse(
         pdf_io,
         media_type="application/pdf",
-        headers={
-            "Content-Disposition": f'attachment; filename="{filename}"'
-        },
-    )  
-
-
-    #execute the app: uvicorn main:app --reload
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
-        
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
