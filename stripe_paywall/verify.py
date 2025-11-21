@@ -3,7 +3,7 @@
 import stripe
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import RedirectResponse
-from stripe_paywall.config import STRIPE_SECRET_KEY, STRIPE_PRICE_ID
+from .config import STRIPE_SECRET_KEY, STRIPE_PRICE_ID
 
 router = APIRouter()
 
