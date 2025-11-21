@@ -1,6 +1,7 @@
 from datetime import date
 from io import BytesIO
-
+from dotenv import load_dotenv
+from fastapi import Request, HTTPException, Depends
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
@@ -9,10 +10,31 @@ from weasyprint import HTML
 from calculator import MetabolicCalculator
 from models import ClientInput
 
+from stripe_paywall.checkout import router as stripe_checkout_router
+from stripe_paywall.verify import router as stripe_verify_router    
+
+
+import os
+load_dotenv()
+print("KEY:", os.getenv("STRIPE_SECRET_KEY")[:10], "...")
+print("PRICE:", os.getenv("STRIPE_PRICE_ID"))
+
+
+
+
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
+app.include_router(stripe_checkout_router)
+app.include_router(stripe_verify_router)
 calculator = MetabolicCalculator()
+
+def require_access(request: Request):
+    access = request.cookies.get("calculator_access")
+    if access != "granted":
+        # Redirect to paywall instead of 403 if you want
+        raise HTTPException(status_code=403, detail="Access denied. Please purchase access.")
+
 
 
 def build_meal_plan(client: ClientInput, plan) -> dict:
@@ -60,16 +82,32 @@ def build_meal_plan(client: ClientInput, plan) -> dict:
 
 
 @app.get("/", response_class=HTMLResponse)
-async def form_view(request: Request):
-    return templates.TemplateResponse(
-        "form.html",
-        {"request": request, "error": None},
-    )
+async def home(request: Request):
+    access = request.cookies.get("calculator_access")
+
+    if access == "granted":
+        # User has paid → show calculator form
+        return templates.TemplateResponse(
+            "form.html",
+            {"request": request, "error": None},
+        )
+    else:
+        # User has NOT paid → show paywall
+        return templates.TemplateResponse(
+            "paywall.html",
+            {"request": request},
+        )
+
+# @app.get("/paywall", response_class=HTMLResponse)
+# async def paywall_view(request: Request):
+#     return templates.TemplateResponse("paywall.html", {"request": request})
 
 
 @app.post("/calculate", response_class=HTMLResponse)
+
 async def calculate_view(
     request: Request,
+    _=Depends(require_access),
     first_name: str = Form(...),
     last_name: str = Form(...),
     email: str = Form(...),

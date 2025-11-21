@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Access Required – Metabolic Calculator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: #f8fafc;
+            margin: 0;
+            padding: 0;
+        }
+        .wrapper {
+            max-width: 480px;
+            margin: 60px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+        }
+        .brand {
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.14em;
+            color: #0ea5e9;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 10px 0;
+            text-align: center;
+            color: #0f172a;
+        }
+        p {
+            font-size: 15px;
+            line-height: 1.55;
+            text-align: center;
+            color: #475569;
+        }
+        .price-box {
+            margin: 22px 0;
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            background: #0ea5e9;
+            color: white;
+            text-align: center;
+            padding: 14px;
+            font-size: 17px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background: #0284c7;
+        }
+        .error {
+            color: #dc2626;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 14px;
+            display: none;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 28px;
+            font-size: 13px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="brand">DoctorDropit</div>
+    <h1>Get Full Access</h1>
+    <p>
+        Unlock the Metabolic & Macro Calculator<br>
+        created by <strong>Barbara Anne Hessel, MD</strong>.<br><br>
+        One-time purchase — lifetime access.
+    </p>
+
+    <div class="price-box">$7</div>
+
+    <button id="buyButton" class="btn">Buy Access – $7</button>
+
+    <div id="errorBox" class="error">Something went wrong. Please try again.</div>
+
+    <div class="footer">
+        Secure payment processed by Stripe.
+    </div>
+</div>
+
+<script>
+document.getElementById("buyButton").addEventListener("click", async () => {
+    const errorBox = document.getElementById("errorBox");
+    errorBox.style.display = "none";
+
+    try {
+        const res = await fetch("/create-checkout-session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+        });
+
+        if (!res.ok) throw new Error("Network error");
+
+        const data = await res.json();
+        if (!data.checkout_url) throw new Error("Invalid Stripe session");
+
+        // Redirect to Stripe Checkout
+        window.location = data.checkout_url;
+
+    } catch (err) {
+        console.error(err);
+        errorBox.style.display = "block";
+    }
+});
+</script>
+
+</body>
+</html>
