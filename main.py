@@ -3,9 +3,11 @@ from io import BytesIO
 from dotenv import load_dotenv
 from fastapi import Request, HTTPException, Depends
 from fastapi import FastAPI, Form, Request
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from starlette.middleware.sessions import SessionMiddleware
 from weasyprint import HTML
+import json
 
 from calculator import MetabolicCalculator
 from models import ClientInput
@@ -19,11 +21,20 @@ load_dotenv()
 print("KEY:", os.getenv("STRIPE_SECRET_KEY")[:10], "...")
 print("PRICE:", os.getenv("STRIPE_PRICE_ID"))
 
-
-
+# Get session secret key - MUST be different from Stripe key
+SESSION_SECRET_KEY = os.getenv("SESSION_SECRET_KEY")
+if not SESSION_SECRET_KEY:
+    # Generate a random key for development (NOT for production!)
+    import secrets
+    SESSION_SECRET_KEY = secrets.token_urlsafe(32)
+    print("WARNING: SESSION_SECRET_KEY not set in .env. Using temporary key for this session.")
+    print("For production, add SESSION_SECRET_KEY to your .env file with a random secret string.")
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
+
+# Add session middleware to store pending calculations
+app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET_KEY)
 
 app.include_router(stripe_checkout_router)
 app.include_router(stripe_verify_router)
@@ -83,31 +94,90 @@ def build_meal_plan(client: ClientInput, plan) -> dict:
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    access = request.cookies.get("calculator_access")
+    # Always show calculator form - payment check happens on calculate
+    return templates.TemplateResponse(
+        "form.html",
+        {"request": request, "error": None},
+    )
 
-    if access == "granted":
-        # User has paid → show calculator form
+@app.get("/paywall", response_class=HTMLResponse)
+async def paywall_view(request: Request):
+    return templates.TemplateResponse("paywall.html", {"request": request})
+
+@app.get("/process-pending-calculation", response_class=HTMLResponse)
+async def process_pending_calculation(request: Request):
+    """
+    Process a calculation that was stored before payment.
+    This endpoint is called after successful payment.
+    """
+    # Check access (should be granted by now, but double-check)
+    access = request.cookies.get("calculator_access")
+    if access != "granted":
+        return RedirectResponse(url="/", status_code=303)
+    
+    # Get pending calculation from session
+    pending_calculation = request.session.get("pending_calculation")
+    if not pending_calculation:
+        # No pending calculation, just go to home
+        return RedirectResponse(url="/", status_code=303)
+    
+    # Clear the pending calculation from session
+    request.session.pop("pending_calculation", None)
+    
+    # Validate and process the calculation
+    try:
+        goal_dt = date.fromisoformat(pending_calculation["goal_date"])
+    except (ValueError, KeyError):
         return templates.TemplateResponse(
             "form.html",
-            {"request": request, "error": None},
-        )
-    else:
-        # User has NOT paid → show paywall
-        return templates.TemplateResponse(
-            "paywall.html",
-            {"request": request},
+            {"request": request, "error": "Invalid calculation data. Please try again."},
+            status_code=400,
         )
 
-# @app.get("/paywall", response_class=HTMLResponse)
-# async def paywall_view(request: Request):
-#     return templates.TemplateResponse("paywall.html", {"request": request})
+    if goal_dt <= date.today():
+        return templates.TemplateResponse(
+            "form.html",
+            {"request": request, "error": "Goal date must be in the future."},
+            status_code=400,
+        )
+
+    # Convert form data types (form data comes as strings)
+    client = ClientInput(
+        first_name=pending_calculation["first_name"],
+        last_name=pending_calculation["last_name"],
+        email=pending_calculation["email"],
+        sex=pending_calculation["sex"],
+        age=int(pending_calculation["age"]),
+        weight=float(pending_calculation["weight"]),
+        weight_unit=pending_calculation["weight_unit"],
+        height=float(pending_calculation["height"]),
+        height_unit=pending_calculation["height_unit"],
+        activity=pending_calculation["activity"],
+        goal=pending_calculation["goal"],
+        intensity=pending_calculation.get("intensity", "moderate"),
+        preference=pending_calculation.get("preference", "balanced"),
+        goal_weight=float(pending_calculation["goal_weight"]),
+        goal_weight_unit=pending_calculation["goal_weight_unit"],
+        goal_date=goal_dt,
+    )
+
+    plan = calculator.calculate_plan(client)
+    meal_plan = build_meal_plan(client, plan)
+
+    return templates.TemplateResponse(
+        "results.html",
+        {
+            "request": request,
+            "client": client,
+            "plan": plan,
+            "meal_plan": meal_plan,
+        },
+    )
 
 
 @app.post("/calculate", response_class=HTMLResponse)
-
 async def calculate_view(
     request: Request,
-    _=Depends(require_access),
     first_name: str = Form(...),
     last_name: str = Form(...),
     email: str = Form(...),
@@ -125,6 +195,9 @@ async def calculate_view(
     goal_weight_unit: str = Form(...),
     goal_date: str = Form(...),
 ):
+    # Check if user has access
+    access = request.cookies.get("calculator_access")
+    
     # Validate goal date server-side
     try:
         goal_dt = date.fromisoformat(goal_date)
@@ -142,6 +215,31 @@ async def calculate_view(
             status_code=400,
         )
 
+    # If user doesn't have access, store form data and redirect to paywall
+    if access != "granted":
+        # Store form data in session for processing after payment
+        form_data = {
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "sex": sex,
+            "age": age,
+            "weight": weight,
+            "weight_unit": weight_unit,
+            "height": height,
+            "height_unit": height_unit,
+            "activity": activity,
+            "goal": goal,
+            "intensity": intensity,
+            "preference": preference,
+            "goal_weight": goal_weight,
+            "goal_weight_unit": goal_weight_unit,
+            "goal_date": goal_date,
+        }
+        request.session["pending_calculation"] = form_data
+        return RedirectResponse(url="/paywall", status_code=303)
+    
+    # User has access - process the calculation
     client = ClientInput(
         first_name=first_name,
         last_name=last_name,

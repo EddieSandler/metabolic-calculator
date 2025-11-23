@@ -1,7 +1,7 @@
 # stripe_paywall/verify.py
 
 import stripe
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import RedirectResponse
 from .config import STRIPE_SECRET_KEY, STRIPE_PRICE_ID
 
@@ -12,10 +12,10 @@ stripe.api_key = STRIPE_SECRET_KEY
 
 
 @router.get("/paywall/success")
-def stripe_success(session_id: str = Query(...)):
+async def stripe_success(request: Request, session_id: str = Query(...)):
     """
     Called by Stripe after a successful checkout.
-    Verifies the session, sets an access cookie, and redirects to the calculator.
+    Verifies the session, sets an access cookie, and processes pending calculation if exists.
     """
     if not STRIPE_SECRET_KEY:
         raise HTTPException(status_code=500, detail="Stripe not configured")
@@ -44,9 +44,18 @@ def stripe_success(session_id: str = Query(...)):
         raise HTTPException(status_code=400, detail="Unexpected product/price in session")
 
     # At this point, payment is good.
-    # Grant access by setting a cookie and redirect to calculator home ("/").
-    response = RedirectResponse(url="/")
-    # 1 year access cookie — adjust if you want shorter
+    # Grant access by setting a cookie
+    # Check if there's a pending calculation to process
+    pending_calculation = request.session.get("pending_calculation")
+    
+    if pending_calculation:
+        # Redirect to process the calculation
+        response = RedirectResponse(url="/process-pending-calculation", status_code=303)
+    else:
+        # No pending calculation, just go to home
+        response = RedirectResponse(url="/", status_code=303)
+    
+    # Set access cookie
     response.set_cookie(
         key="calculator_access",
         value="granted",
@@ -58,10 +67,12 @@ def stripe_success(session_id: str = Query(...)):
 
 
 @router.get("/paywall/cancel")
-def stripe_cancel():
+async def stripe_cancel(request: Request):
     """
     Called when user cancels on Stripe Checkout.
-    Redirect back to paywall or show a simple message.
+    Clear any pending calculation and redirect back to calculator.
     """
-    # For now just redirect back to the paywall.
-    return RedirectResponse(url="/paywall")
+    # Clear pending calculation if user cancels
+    request.session.pop("pending_calculation", None)
+    # Redirect back to calculator
+    return RedirectResponse(url="/")
