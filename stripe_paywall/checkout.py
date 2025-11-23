@@ -8,6 +8,11 @@ stripe.api_key = STRIPE_SECRET_KEY
 
 @router.post("/create-checkout-session")
 def create_checkout_session():
+    """
+    Creates a Stripe checkout session.
+    Uses BASE_URL from environment (defaults to localhost for dev, set in Render for production).
+    No need to change URLs manually - it's automatic!
+    """
     if not STRIPE_PRICE_ID:
         raise HTTPException(500, "Stripe price ID not configured.")
 
@@ -15,10 +20,8 @@ def create_checkout_session():
         payment_method_types=["card"],
         line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
         mode="payment",
-        # success_url=f"{BASE_URL}/paywall/success?session_id={{CHECKOUT_SESSION_ID}}",
-        # cancel_url=f"{BASE_URL}/paywall/cancel",
-        success_url="http://127.0.0.1:8000/paywall/success?session_id={CHECKOUT_SESSION_ID}",
-        cancel_url="http://127.0.0.1:8000/paywall/cancel",
+        success_url=f"{BASE_URL}/paywall/success?session_id={{CHECKOUT_SESSION_ID}}",
+        cancel_url=f"{BASE_URL}/paywall/cancel",
     )
 
     return {"checkout_url": session.url}
